@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Prueba de Supabase API</title>
+</head>
+<body>
+  <h2>🔍 Buscar usuario por ID</h2>
+  <input id="id_buscar" placeholder="ID">
+  <button onclick="buscarUsuario()">Buscar</button>
+  <pre id="resultado_busqueda"></pre>
+
+  <h3>📥 Datos obtenidos:</h3>
+  <input id="input_id" placeholder="ID del usuario"><br>
+  <input id="input_user" placeholder="Nombre de usuario"><br>
+  <input id="input_clave" placeholder="Clave"><br>
+  <input id="input_vcm" placeholder="Fecha VCM (YYYY-MM-DD)"><br>
+  <input id="input_point" placeholder="Point (true/false)"><br>
+
+  <h2>🔐 Login</h2>
+  <input id="id_login" placeholder="ID">
+  <input id="clave_login" placeholder="CLAVE">
+  <button onclick="login()">Login</button>
+  <pre id="resultado_login"></pre>
+
+  <h2>✏️ Editar Fecha VCM</h2>
+  <input id="id_editar" placeholder="ID del usuario">
+  <input id="vcm_nuevo" placeholder="Nueva fecha VCM (YYYY-MM-DD)">
+  <button onclick="editarVCM()">Actualizar VCM</button>
+  <pre id="resultado_edicion"></pre>
+
+  <script>
+    const API_BASE = "https://apisss-production.up.railway.app";
+
+    // * Variables globales
+  let globalID = "";
+  let globalUSER = "";
+  let globalVCM = "";
+  let globalCLAVE = "";
+  let globalPOINT = false;
+
+  async function buscarUsuario() {
+    const idBuscado = document.getElementById("id_buscar").value.trim();
+
+    const res = await fetch("https://apisss-production.up.railway.app/buscar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: idBuscado })
+    });
+
+    const data = await res.json();
+
+    console.log("Respuesta completa:", data);
+
+    if (data && data.ID) {
+      // ? Guardar en variables globales
+      globalID = data.ID;
+      globalUSER = data.USER;
+      globalVCM = data.VCM;
+      globalCLAVE = data.CLAVE;
+      globalPOINT = data.POINT;
+
+      console.log("→ globalVCM:", globalVCM); // * Confirmación
+
+      // * Puedes llenar los inputs si lo deseas
+      document.getElementById("input_id").value = globalID;
+      document.getElementById("input_user").value = globalUSER;
+      document.getElementById("input_clave").value = globalCLAVE;
+      document.getElementById("input_vcm").value = globalVCM;
+      document.getElementById("input_point").value = globalPOINT;
+    } else {
+      alert("Usuario no encontrado");
+    }
+  }
+
+    async function login() {
+      const id = document.getElementById("id_login").value.trim();
+      const clave = document.getElementById("clave_login").value.trim();
+      const res = await fetch(`${API_BASE}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, clave })
+      });
+      const data = await res.json();
+      document.getElementById("resultado_login").textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function editarVCM() {
+      const id = document.getElementById("id_editar").value.trim();
+      const vcm = document.getElementById("vcm_nuevo").value.trim();
+
+      const res = await fetch(`${API_BASE}/editar_vcm`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, vcm })
+      });
+
+      const data = await res.json();
+      document.getElementById("resultado_edicion").textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
